@@ -13,15 +13,17 @@ pipeline {
 
         stage('Build and Test') {
             steps {
+	sh 'php --version'
             }
         }
 
         stage('Deploy') {
             steps {
-                script {
+	sh 'php --version'
+                //script {
                     // Deploy your PHP application
                     // This could involve pushing to a repository, deploying to a server, etc.
-                }
+                //}
             }
         }
     }
