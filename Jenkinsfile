@@ -13,8 +13,6 @@ pipeline {
 
         stage('Build and Test') {
             steps {
-                script {
-                }
             }
         }
 
