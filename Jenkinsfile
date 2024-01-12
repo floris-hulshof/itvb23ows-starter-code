@@ -1,17 +1,13 @@
 pipeline {
     agent { label '!windows' }
     
-        stage('SonarQube') {
+       stage('SonarQube Analysis') {
             steps {
                 script {
-                    def scannerHome = tool 'SonarQube Scanner'
                     withSonarQubeEnv('SonarQube') {
-                        sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=tutorial
-                        """
+                        sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
                     }
                 }
             }
-    }
+        }
 }
