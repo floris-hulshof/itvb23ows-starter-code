@@ -1,39 +1,12 @@
+Jenkinsfile (Declarative Pipeline)
+/* Requires the Docker Pipeline plugin */
 pipeline {
-    agent any
-
+    agent { docker { image 'php:8.3.1-alpine3.19' } }
     stages {
-        stage('Checkout') {
+        stage('build') {
             steps {
-                script {
-                    // Checkout the code from your version control system (e.g., Git)
-                    checkout scm
-                }
+                sh 'php --version'
             }
-        }
-
-        stage('Build and Test') {
-            steps {
-	sh 'php --version'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-	sh 'php --version'
-                //script {
-                    // Deploy your PHP application
-                    // This could involve pushing to a repository, deploying to a server, etc.
-                //}
-            }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline succeeded! Do additional actions here if needed.'
-        }
-        failure {
-            echo 'Pipeline failed! Do additional actions here if needed.'
         }
     }
 }
