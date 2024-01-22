@@ -21,5 +21,8 @@ class Hand
             }
         }
     }
+    public function hasPiece($pieceType) {
+        return isset($this->pieces[$pieceType]);
+    }
 
 }

@@ -48,5 +48,13 @@ class Db
             return false;
         }
     }
+    public function moveDB($game_id, $piece, $to, $lastMove, $state){
+
+        $stmt = $this->db->prepare('insert into moves (game_id, type, move_from, move_to, previous_id, state) values (?, "play", ?, ?, ?, ?)');
+        $stmt->bind_param('issis', $game_id, $piece, $to, $lastMove, $state);
+        $stmt->execute();
+
+        return $this->db->insert_id;
+    }
 
 }

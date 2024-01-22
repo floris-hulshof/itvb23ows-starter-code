@@ -19,6 +19,9 @@ class Player
     public function setHand($hand){
         $this->hand = $hand;
     }
+    public function hasPieceInHand($pieceType) {
+        return $this->hand->hasPiece($pieceType);
+    }
 
 
 }

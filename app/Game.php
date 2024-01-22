@@ -28,23 +28,31 @@ class Game
         //$this->lastMove = $_SESSION['last_move']; // Last move needs to be added when a play is made
     }
 
-    public function undo(){
+    public function undo()
+    {
         $result = $this->db->undoDB($this);
         $this->lastMove = $result[5];
         $this->state->setState($this, $result[6]);
     }
 
-    public function getCurrentPlayer(){
+    public function currentPlayer()
+    {
         return $this->player[$this->currentPlayerIndex];
     }
-    public function switchPlayer(){
+
+    public function switchPlayer()
+    {
         $this->currentPlayerIndex = 1 - $this->currentPlayerIndex;
     }
-    public function getBoard(){
+
+    public function getBoard()
+    {
         return $this->board;
     }
-    public function setBoard($board){
-        $this->board = $board;
+
+    public function setBoard($to, $piece)
+    {
+        $this->board[$to] =  [$this->currentPlayerIndex, $piece];
     }
 
 
@@ -52,20 +60,42 @@ class Game
     {
         return $this->lastMove;
     }
-    public function setLastMove($lastMove){
+
+    public function setLastMove($lastMove)
+    {
         $this->lastMove = $lastMove;
     }
 
-    public function setCurrentPlayerIndex($currentPlayerIndex){
+    public function setCurrentPlayerIndex($currentPlayerIndex)
+    {
         $this->currentPlayerIndex = $currentPlayerIndex; //This function only exists to satisfy the Stage class...
     }
 
-    public function move(){
+    public function move($piece, $to)
+    {
+        if (!$this->currentPlayer()->hasPieceInHand($piece)) {
+            $_SESSION['error'] = "Player does not have tile";
+        }elseif(isset($this->board[$to])){
+            $_SESSION['error'] = 'Board position is not empty';
+        }elseif (count($this->board) && !$this->hasNeighBour($to)){
+            $_SESSION['error'] = "board position has no neighbour";
+        }elseif(array_sum($this->currentPlayer()->getHand()->getPieces()) < 11 && !$this->neighboursAreSameColor($to)){  //TODO: check this if statement for the <11
+            $_SESSION['error'] = "Board position has opposing neighbour";
+        }elseif(array_sum($this->currentPlayer()->getHand()->getPieces()) <= 8 && !$this->currentPlayer()->getHand()->hasPiece('Q')){
+            $_SESSION['error'] = 'Must play queen bee';
+        } else{
+            $this->setBoard($to, $piece);
+            $this->currentPlayer()->getHand()->removePiece($piece);
+            $this->switchPlayer();
+            $lastId = $this->db->moveDB($this->game_id, $piece, $to, $this->lastMove, $this->state->getState($this));
+            $this->lastMove = $lastId;
+        }
 
     }
 
 
-    function isNeighbour($a, $b) {
+    function isNeighbour($a, $b)
+    {
         $a = explode(',', $a);
         $b = explode(',', $b);
         if ($a[0] == $b[0] && abs($a[1] - $b[1]) == 1) return true;
@@ -73,11 +103,14 @@ class Game
         if ($a[0] + $a[1] == $b[0] + $b[1]) return true;
         return false;
     }
-    function hasNeighBour($a) {
+
+    function hasNeighBour($a)
+    {
         foreach (array_keys($this->board) as $b) {
             if (isNeighbour($a, $b)) return true;
         }
     }
+
     public function neighboursAreSameColor($a)
     {
         foreach ($this->board as $b => $st) {
@@ -88,11 +121,13 @@ class Game
         return true;
     }
 
-    function len($tile) {
+    function len($tile)
+    {
         return $tile ? count($tile) : 0;
     }
 
-    function slide($from, $to) {
+    function slide($from, $to)
+    {
         if (!$this->hasNeighBour($to)) return false;
         if (!$this->isNeighbour($from, $to)) return false;
         $b = explode(',', $to);
@@ -100,7 +135,7 @@ class Game
         foreach ($this->offsets as $pq) {
             $p = $b[0] + $pq[0];
             $q = $b[1] + $pq[1];
-            if ($this->isNeighbour($from, $p.",".$q)) $common[] = $p.",".$q;
+            if ($this->isNeighbour($from, $p . "," . $q)) $common[] = $p . "," . $q;
         }
         if (!$this->board[$common[0]] && !$this->board[$common[1]] && !$this->board[$from] && !$this->board[$to]) return false;
         return min($this->len($this->board[$common[0]]), $this->len($this->board[$common[1]])) <= max($this->len($this->board[$from]), $this->len($this->board[$to]));
