@@ -7,7 +7,7 @@ include_once 'util.php';
 class Game
 {
     private $db;
-    private $player;
+    private $players;
     private $board;
     private $hand;
     private $gameId;
@@ -16,8 +16,11 @@ class Game
     public function __construct()
     {
         $this->db = include 'database.php';
-        $this->player = $_SESSION['player'];
-        $this->board = $_SESSION['board'];
+        $this->players = [new Player("white"), new Player("black")];
+        $this->board = [];
+//        $this->player = $_SESSION['player'];
+//        $this->board = $_SESSION['board'];
+
         $this->hand = $_SESSION['hand'][$this->player];
         $this->gameId = $_SESSION['game_id'];
         $this->lastMove = $_SESSION['last_move'];
