@@ -43,7 +43,7 @@ class Game
             $this->updateDatabase();
         }
 
-        header('Location: index.php');
+        header('Location: index_old.php');
     }
 
     private function hasNeighbour($position)

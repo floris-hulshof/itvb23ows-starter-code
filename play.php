@@ -32,6 +32,6 @@ elseif (array_sum($hand) <= 8 && $hand['Q']) {
     $_SESSION['last_move'] = $db->insert_id;
 }
 
-header('Location: index.php');
+header('Location: index_old.php');
 
 ?>

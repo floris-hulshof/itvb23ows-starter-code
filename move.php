@@ -64,6 +64,6 @@ else {
     $_SESSION['board'] = $board;
 }
 
-header('Location: index.php');
+header('Location: index_old.php');
 
 ?>
