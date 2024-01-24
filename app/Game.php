@@ -1,13 +1,13 @@
 <?php
-
+include_once "Db.php";
+include_once "State.php";
 
 class Game
 {
-    private $player;
+    private $hand;
     private $board;
     private $game_id;
     private $db;
-    private $lastMove;
     private $currentPlayerIndex;
     private $state;
     private $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
@@ -15,29 +15,35 @@ class Game
 
     public function __construct()
     {
+        session_start();
         $this->db = new Db();
-        $this->player = [new Player("white"), new Player("black")];
-        $this->board = [];
-        $this->game_id = $this->db->getLastGameId() + 1;  // get last game id and add 1
-        $this->currentPlayerIndex = 0;
 
-        $this->lastMove = null; //TODO: Check how Last move works in the vanilla code
+        if (!isset($_SESSION['board'])) {
+            $this->restart(); // niet heel netjes maar anders wordt dit dupecode
+        }
+        $this->board = $_SESSION['board'];
+        $this->currentPlayerIndex = $_SESSION['player'];
+        $this->hand = $_SESSION['hand'];
+        $this->game_id = $_SESSION['game_id'];
+
         $this->state = new State;
-//        $this->hand = $_SESSION['hand'][$this->player]; // Hand does not need to be initialized because it is done when player is initialized
-
-        //$this->lastMove = $_SESSION['last_move']; // Last move needs to be added when a play is made
+    }
+    public function getOffsets(){
+        return $this->offsets;
     }
 
     public function undo()
     {
-        $result = $this->db->undoDB($this);
-        $this->lastMove = $result[5];
-        $this->state->setState($this, $result[6]);
-    }
+        $result = $this->db->undoDB($_SESSION['last_move']);
+        $_SESSION['last_move'] = $result[5];
+        $this->state->setState($result[6]);
+        $this->hand = $_SESSION['hand'];
+        $this->board = $_SESSION['board'];
+        $this->currentPlayerIndex = $_SESSION['player'];
 
-    public function currentPlayer()
-    {
-        return $this->player[$this->currentPlayerIndex];
+    }
+    public function getPlayerHand($index){
+        return $this->hand[$index];
     }
 
     public function switchPlayer()
@@ -52,44 +58,55 @@ class Game
 
     public function setBoard($to, $piece)
     {
-        $this->board[$to] = [$this->currentPlayerIndex, $piece];
+        $this->board[$to] = [[$this->currentPlayerIndex, $piece]];
     }
 
 
-    public function getLastMove()
-    {
-        return $this->lastMove;
-    }
 
-    public function setLastMove($lastMove)
-    {
-        $this->lastMove = $lastMove;
+    public function getCurrentPlayerIndex(){
+        return $this->currentPlayerIndex;
     }
-
     public function setCurrentPlayerIndex($currentPlayerIndex)
     {
         $this->currentPlayerIndex = $currentPlayerIndex; //This function only exists to satisfy the Stage class...
     }
 
+    public function getGameId(){
+        return $this->game_id;
+    }
+
+    public function getCurrentGame($game_id){
+
+        return $this->db->getCurrentGameDB($game_id);
+    }
+
     public function play($piece, $to)
     {
-        if (!$this->currentPlayer()->hasPieceInHand($piece)) {
+
+        $player = $this->currentPlayerIndex;
+        $board = $this->board;
+        $hand = $this->hand[$player];
+
+        if (!isset($hand[$piece]) || $hand[$piece] <= 0) {
             $_SESSION['error'] = "Player does not have tile";
         } elseif (isset($this->board[$to])) {
             $_SESSION['error'] = 'Board position is not empty';
         } elseif (count($this->board) && !$this->hasNeighBour($to)) {
             $_SESSION['error'] = "board position has no neighbour";
-        } elseif (array_sum($this->currentPlayer()->getHand()->getPieces()) < 11 && !$this->neighboursAreSameColor($to)) {  //TODO: check this if statement for the <11
+        } elseif (array_sum($hand) < 11 && !$this->neighboursAreSameColor($to)) {  //TODO: check this if statement for the <11
             $_SESSION['error'] = "Board position has opposing neighbour";
-        } elseif (array_sum($this->currentPlayer()->getHand()->getPieces()) <= 8 && !$this->currentPlayer()->getHand()->hasPiece('Q')) {
+        } elseif (array_sum($hand) <= 8 && !isset($hand['Q']) || $hand['Q'] <= 0) {
             $_SESSION['error'] = 'Must play queen bee';
         } else {
             $this->setBoard($to, $piece);
-            $this->currentPlayer()->getHand()->removePiece($piece);
+            $this->hand[$player][$piece]--;
             $this->switchPlayer();
-            $state = $this->state->getState($this);
-            $lastId = $this->db->playDB($this->game_id, $piece, $to, $this->lastMove, $state);
-            $this->lastMove = $lastId;
+            $_SESSION['board'] = $this->board;
+            $_SESSION['hand'] = $this->hand;
+            $_SESSION['player'] = $this->currentPlayerIndex;
+            $state = $this->state->getState();
+            $lastId = $this->db->playDB($this->game_id, $piece, $to, $_SESSION['last_move'], $state);
+            $_SESSION['last_move'] = $lastId;
         }
 
     }
@@ -98,7 +115,7 @@ class Game
     {
         $player = $this->currentPlayerIndex;
         $board = $this->board;
-        $hand = $this->currentPlayer()->getHand()->getPieces();
+        $hand = $this->hand[$player];
 
         unset($_SESSION['error']);
 
@@ -106,7 +123,7 @@ class Game
             $_SESSION['error'] = 'Board position is empty';
         elseif ($board[$from][count($board[$from]) - 1][0] != $player)
             $_SESSION['error'] = "Tile is not owned by player";
-        elseif ($hand['Q'])
+        elseif (isset($hand['Q']) && $hand['Q'] > 0)
             $_SESSION['error'] = "Queen bee is not played";
         else {
             $tile = array_pop($board[$from]);
@@ -133,7 +150,7 @@ class Game
                     if ($from == $to) $_SESSION['error'] = 'Tile must move';
                     elseif (isset($board[$to]) && $tile[1] != "B") $_SESSION['error'] = 'Tile not empty';
                     elseif ($tile[1] == "Q" || $tile[1] == "B") {
-                        if (!slide($board, $from, $to))
+                        if (!$this->slide($board, $from, $to))
                             $_SESSION['error'] = 'Tile must slide';
                     }
                 }
@@ -145,25 +162,30 @@ class Game
                 if (isset($board[$to])) array_push($board[$to], $tile);
                 else $board[$to] = [$tile];
                 $this->switchPlayer();
+                $_SESSION['player'] = $this->currentPlayerIndex;
                 // change this to go to DB
                 $state = $this->state->getState($this);
-                $lastId = $this->db->moveDB($from, $to, $this->lastMove, $state);
-                $this->lastMove = $lastId;
+                $lastId = $this->db->moveDB($from, $to, $_SESSION['last_move'], $state);
+                $_SESSION['last_move'] = $lastId;
             }
             $this->board = $board;
+            $_SESSION['board'] = $this->board;
         }
     }
 
     public function pass()
     {
-        $state = $this->state->getState($this);
-        $lastId = $this->db->passDB($this->game_id, $this->lastMove, $state);
-        $this->lastMove = $lastId;
+
+        $state = $this->state->getState();
+        $lastId = $this->db->passDB($_SESSION['game_id'], $_SESSION['last_move'], $state);
         $this->switchPlayer();
+        $_SESSION['last_move'] = $lastId;
+        $_SESSION['player'] = $this->currentPlayerIndex;
+
     }
 
 
-    function isNeighbour($a, $b)
+    public function isNeighbour($a, $b)
     {
         $a = explode(',', $a);
         $b = explode(',', $b);
@@ -173,10 +195,10 @@ class Game
         return false;
     }
 
-    function hasNeighBour($a)
+    public function hasNeighBour($a)
     {
         foreach (array_keys($this->board) as $b) {
-            if (isNeighbour($a, $b)) return true;
+            if ($this->isNeighbour($a, $b)) return true;
         }
     }
 
@@ -185,17 +207,17 @@ class Game
         foreach ($this->board as $b => $st) {
             if (!$st) continue;
             $c = $st[count($st) - 1][0];
-            if ($c != $this->getCurrentPlayer() && $this->isNeighbour($a, $b)) return false;
+            if ($c != $this->getCurrentPlayerIndex() && $this->isNeighbour($a, $b)) return false;
         }
         return true;
     }
 
-    function len($tile)
+    public function len($tile)
     {
         return $tile ? count($tile) : 0;
     }
 
-    function slide($from, $to)
+    public function slide($from, $to)
     {
         if (!$this->hasNeighBour($to)) return false;
         if (!$this->isNeighbour($from, $to)) return false;
@@ -210,14 +232,32 @@ class Game
         return min($this->len($this->board[$common[0]]), $this->len($this->board[$common[1]])) <= max($this->len($this->board[$from]), $this->len($this->board[$to]));
     }
 
+    public function getPossiblePossitions(){
+        $to = [];
+        foreach ($this->getOffsets() as $pq) {
+            foreach (array_keys($this->getBoard()) as $pos) {
+                $pq2 = explode(',', $pos);
+                $to[] = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
+            }
+        }
+        $to = array_unique($to);
+        if (!count($to)) $to[] = '0,0';
+        return $to;
+    }
+
 
     public function restart()
     {
         $this->board = [];
-        $this->player = [new Player("white"), new Player("black")];
         $this->currentPlayerIndex = 0;
-        $this->db->saveGame();
-
+        $this->game_id = $this->db->saveGame();  // saves in Game Id the last saved game
+        $this->hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
+        $_SESSION['board'] = $this->board;
+        $_SESSION['hand'] = $this->hand;
+        $_SESSION['player'] = $this->getCurrentPlayerIndex();
+        $_SESSION["game_id"] = $this->game_id;
 
     }
+
+
 }

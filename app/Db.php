@@ -18,9 +18,9 @@ class Db
         }
     }
 
-    public function undoDB(Game $game)
+    public function undoDB($last_move)
     {
-        $stmt = $this->db->prepare('SELECT * FROM moves WHERE id = ' . $game->getLastMove());
+        $stmt = $this->db->prepare('SELECT * FROM moves WHERE id = ' . $last_move);
         $stmt->execute();
         return $stmt->get_result()->fetch_array();
 
@@ -39,14 +39,8 @@ class Db
         }
     }
     public function saveGame(){
-        $query = "INSERT INTO games VALUES ()";
-
-        if ($this->db->query($query)) {
-            return true; // Game saved successfully
-        } else {
-            // Handle the error or return false to indicate failure
-            return false;
-        }
+        $this->db->prepare('INSERT INTO games VALUES ()')->execute();
+        return $this->db->insert_id;
     }
     public function playDB($game_id, $piece, $to, $lastMove, $state){
 
@@ -73,5 +67,12 @@ class Db
 
         return $this->db->insert_id;
     }
+    public function getCurrentGameDB($game_id){
+        $stmt = $this->db->prepare('SELECT * FROM moves WHERE game_id = ?');
+        $stmt->bind_param('i', $game_id);
+        $stmt->execute();
+        return $stmt->get_result();
+    }
+
 
 }

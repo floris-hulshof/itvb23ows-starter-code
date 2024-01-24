@@ -1,0 +1,10 @@
+version: '3'
+services:
+  web:
+    container_name: my-php-app
+    build:
+      context: ./app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./app:/var/www/html/

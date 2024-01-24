@@ -2,15 +2,16 @@
 
 class State {
 
-    public function getState(Game $game) {
-        return serialize([$game->currentPlayer()->getHand(), $game->board, $game->currentPlayer()]);
+    public function getState() {
+        return serialize([$_SESSION['hand'], $_SESSION['board'], $_SESSION['player']]);
     }
 
-    public function setState(Game $game,$state) {
+    public function setState($state) {
         list($a, $b, $c) = unserialize($state);
-        $game->currentPlayer()->setHand($a);
-        $game->setBoard($b);
-        $game->setCurrentPlayerIndex($c);
+        $_SESSION['hand'] = $a;
+        $_SESSION['board'] = $b;
+        $_SESSION['player'] = $c;
+
 
     }
 }
