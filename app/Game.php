@@ -93,6 +93,7 @@ class Game
         $player = $this->currentPlayerIndex;
         $board = $this->board;
         $hand = $this->hand[$player];
+        var_dump($piece);
 
         if (!isset($hand[$piece]) || $hand[$piece] <= 0) {
             $_SESSION['error'] = "Player does not have tile";
@@ -102,9 +103,11 @@ class Game
             $_SESSION['error'] = "board position has no neighbour";
         } elseif (array_sum($hand) < 11 && !$this->neighboursAreSameColor($to)) {  //TODO: check this if statement for the <11
             $_SESSION['error'] = "Board position has opposing neighbour";
-        } elseif (array_sum($hand) <= 8 && !isset($hand['Q'])) {
+        } elseif (array_sum($hand) <= 8 && isset($hand['Q']) && $piece != "Q") {   //Fix voor bug 4
             $_SESSION['error'] = 'Must play queen bee';
         } else {
+
+            var_dump(array_sum($hand));
             $this->setBoard($to, $piece);
             $this->hand[$player][$piece]--;
             $this->switchPlayer();
@@ -243,6 +246,11 @@ class Game
     {
         $player = $this->currentPlayerIndex;
 
+        // Check if it's the second turn
+        if (count($this->getCurrentPlayerPositions()) < 1) {
+            return true; // Allow any position on the second turn
+        }
+
         // Check if the position is next to any of the current player's tiles
         foreach ($this->getBoard() as $pos => $tiles) {
             foreach ($tiles as $tile) {
@@ -251,7 +259,7 @@ class Game
                     foreach ($this->getBoard() as $opponentPos => $opponentTiles) {
                         foreach ($opponentTiles as $opponentTile) {
                             if ($opponentTile[0] !== $player && $this->isNeighbour($opponentPos, $position)) {
-                                return false;
+                                return false; // Disallow placement next to opponent's tile on the second turn
                             }
                         }
                     }
@@ -279,6 +287,9 @@ class Game
                 }
             }
         }
+        if (empty($this->getBoard())) {
+            $validPositions[] = '0,0';
+        }
 
         return array_unique($validPositions);
     }
@@ -304,6 +315,7 @@ class Game
         $this->currentPlayerIndex = 0;
         $this->game_id = $this->db->saveGame();  // saves in Game Id the last saved game
         $this->hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
+        $_SESSION['OFFSET'] = $this->offsets;
         $_SESSION['board'] = $this->board;
         $_SESSION['hand'] = $this->hand;
         $_SESSION['player'] = $this->getCurrentPlayerIndex();

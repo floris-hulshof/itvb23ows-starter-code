@@ -29,6 +29,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['pass'])) {
 
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['restart'])) {
+    $game->restart();
+
+}
+
 // Handle the undo form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
     $game->undo();
