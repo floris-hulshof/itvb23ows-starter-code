@@ -28,7 +28,9 @@ class Game
 
         $this->state = new State;
     }
-    public function getOffsets(){
+
+    public function getOffsets()
+    {
         return $this->offsets;
     }
 
@@ -42,7 +44,9 @@ class Game
         $this->currentPlayerIndex = $_SESSION['player'];
 
     }
-    public function getPlayerHand($index){
+
+    public function getPlayerHand($index)
+    {
         return $this->hand[$index];
     }
 
@@ -62,20 +66,23 @@ class Game
     }
 
 
-
-    public function getCurrentPlayerIndex(){
+    public function getCurrentPlayerIndex()
+    {
         return $this->currentPlayerIndex;
     }
+
     public function setCurrentPlayerIndex($currentPlayerIndex)
     {
         $this->currentPlayerIndex = $currentPlayerIndex; //This function only exists to satisfy the Stage class...
     }
 
-    public function getGameId(){
+    public function getGameId()
+    {
         return $this->game_id;
     }
 
-    public function getCurrentGame($game_id){
+    public function getCurrentGame($game_id)
+    {
 
         return $this->db->getCurrentGameDB($game_id);
     }
@@ -95,7 +102,7 @@ class Game
             $_SESSION['error'] = "board position has no neighbour";
         } elseif (array_sum($hand) < 11 && !$this->neighboursAreSameColor($to)) {  //TODO: check this if statement for the <11
             $_SESSION['error'] = "Board position has opposing neighbour";
-        } elseif (array_sum($hand) <= 8 && !isset($hand['Q']) || $hand['Q'] <= 0) {
+        } elseif (array_sum($hand) <= 8 && !isset($hand['Q'])) {
             $_SESSION['error'] = 'Must play queen bee';
         } else {
             $this->setBoard($to, $piece);
@@ -232,19 +239,64 @@ class Game
         return min($this->len($this->board[$common[0]]), $this->len($this->board[$common[1]])) <= max($this->len($this->board[$from]), $this->len($this->board[$to]));
     }
 
-    public function getPossiblePossitions(){
-        $to = [];
+    public function isValidPosition($position)
+    {
+        $player = $this->currentPlayerIndex;
+
+        // Check if the position is next to any of the current player's tiles
+        foreach ($this->getBoard() as $pos => $tiles) {
+            foreach ($tiles as $tile) {
+                if ($tile[0] === $player && $this->isNeighbour($pos, $position)) {
+                    // Check if the position is not adjacent to any opponent's tiles
+                    foreach ($this->getBoard() as $opponentPos => $opponentTiles) {
+                        foreach ($opponentTiles as $opponentTile) {
+                            if ($opponentTile[0] !== $player && $this->isNeighbour($opponentPos, $position)) {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    public function getPossiblePossitions()
+    {
+        $validPositions = [];
+
+        // Get all possible positions
         foreach ($this->getOffsets() as $pq) {
             foreach (array_keys($this->getBoard()) as $pos) {
                 $pq2 = explode(',', $pos);
-                $to[] = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
+                $possiblePosition = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
+
+                // Check if the position is valid for the current player
+                if ($this->isValidPosition($possiblePosition)) {
+                    $validPositions[] = $possiblePosition;
+                }
             }
         }
-        $to = array_unique($to);
-        if (!count($to)) $to[] = '0,0';
-        return $to;
-    }
 
+        return array_unique($validPositions);
+    }
+    public function getCurrentPlayerPositions()
+    {
+        $player = $this->currentPlayerIndex;
+        $currentPlayerPositions = [];
+
+        foreach ($this->getBoard() as $pos => $tiles) {
+            foreach ($tiles as $tile) {
+                if ($tile[0] === $player) {
+                    $currentPlayerPositions[] = $pos;
+                }
+            }
+        }
+
+        return $currentPlayerPositions;
+    }
 
     public function restart()
     {

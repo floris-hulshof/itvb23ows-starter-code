@@ -2,6 +2,7 @@
 include_once 'Game.php';
 $game = new Game();
 
+
 // Handle the play form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['play'])) {
     // Check if both 'piece' and 'to' are set in $_POST
@@ -152,25 +153,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
         </select>
         <select name="to">
             <?php
-            foreach ($game->getPossiblePossitions() as $pos) {
-                echo "<option value=\"$pos\">$pos</option>";
+            $possiblePositions = $game->getPossiblePossitions();
+            foreach ($possiblePositions as $pos) {
+                if (!$game->getBoard()[$pos]) { // Only show positions that are empty
+                    echo "<option value=\"$pos\">$pos</option>";
+                }
             }
             ?>
+        </select>
         </select>
         <input type="submit" name="play" value="Play">
     </form>
     <form method="post">
         <select name="from">
             <?php
-            foreach (array_keys($game->getBoard()) as $pos) {
+            foreach ($game->getCurrentPlayerPositions() as $pos) {
                 echo "<option value=\"$pos\">$pos</option>";
             }
             ?>
         </select>
         <select name="to">
             <?php
-            foreach ($game->getPossiblePossitions() as $pos) {
-                echo "<option value=\"$pos\">$pos</option>";
+            $possiblePositions = $game->getPossiblePossitions();
+            foreach ($possiblePositions as $pos) {
+                if (!$game->getBoard()[$pos]) { // Only show positions that are empty
+                    echo "<option value=\"$pos\">$pos</option>";
+                }
             }
             ?>
         </select>
