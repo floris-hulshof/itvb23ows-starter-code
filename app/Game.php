@@ -36,14 +36,39 @@ class Game
 
     public function undo()
     {
-        $result = $this->db->undoDB($_SESSION['last_move']);
-        $_SESSION['last_move'] = $result[5];
-        $this->state->setState($result[6]);
-        $this->hand = $_SESSION['hand'];
-        $this->board = $_SESSION['board'];
-        $this->currentPlayerIndex = $_SESSION['player'];
+        $previousMoveId = $_SESSION['last_move'];
 
+        if (empty($previousMoveId)) {
+            $_SESSION['error'] = "No moves to undo";
+            return;
+        }
+
+        $previousMove = $this->db->getMoveId($previousMoveId);
+
+        if (empty($previousMove)) {
+            $this->restart();
+            return;
+        }
+
+        $result = $this->db->getMoveId($previousMove[5]);
+
+        if (!$result) {
+            $this->restart();
+            return;
+        }
+        $this->db->deleteMoveId($previousMoveId);
+        $this->restoreGameState($result[6]);
+        $_SESSION['last_move'] = $previousMove[5];
     }
+
+    private function restoreGameState($state)
+    {
+        $this->state->setState($state);
+        $this->board = $_SESSION['board'];
+        $this->hand =  $_SESSION['hand'];
+        $this->player = $_SESSION['player'];
+    }
+
 
     public function getPlayerHand($index)
     {
@@ -106,7 +131,6 @@ class Game
             $_SESSION['error'] = 'Must play queen bee';
         } else {
 
-            var_dump(array_sum($hand));
             $this->setBoard($to, $piece);
             $this->hand[$player][$piece]--;
             $this->switchPlayer();

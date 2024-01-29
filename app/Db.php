@@ -74,5 +74,18 @@ class Db
         return $stmt->get_result();
     }
 
+    public function getMoveId($id){
+        $stmt = $this->db->prepare('SELECT * FROM moves WHERE id = ?');
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_array();
+    }
+    public function deleteMoveId($id){
+        $stmt = $this->db->prepare('DELETE FROM moves WHERE id = ?');
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+    }
+
 
 }
