@@ -160,7 +160,7 @@ class Game
                     if ($from == $to) $_SESSION['error'] = 'Tile must move';
                     elseif (isset($board[$to]) && $tile[1] != "B") $_SESSION['error'] = 'Tile not empty';
                     elseif ($tile[1] == "Q" || $tile[1] == "B") {
-                        if (!$this->slide($board, $from, $to))
+                        if (!$this->slide($from, $to))
                             $_SESSION['error'] = 'Tile must slide';
                     }
                 }
@@ -229,17 +229,37 @@ class Game
 
     public function slide($from, $to)
     {
-        if (!$this->hasNeighBour($to)) return false;
-        if (!$this->isNeighbour($from, $to)) return false;
+        if (!$this->hasNeighBour($to)) {
+            return false;
+        }
+
+        if (!$this->isNeighbour($from, $to)) {
+            return false;
+        }
+
         $b = explode(',', $to);
-        $common = [];
+
         foreach ($this->offsets as $pq) {
             $p = $b[0] + $pq[0];
             $q = $b[1] + $pq[1];
-            if ($this->isNeighbour($from, $p . "," . $q)) $common[] = $p . "," . $q;
+            $neighbor = "$p,$q";
+
+            if (isset($this->board[$neighbor]) && $this->isNeighbour($from, $neighbor)) {
+                // Check if the tile at $neighbor is a blocker ("B")
+                if (end($this->board[$neighbor])[1] === "B") {
+                    return false; // If there's a blocker, disallow the slide
+                }
+
+                // Check if the tile at $from is a blocker ("B")
+                if (end($this->board[$from])[1] === "B") {
+                    return false; // If there's a blocker, disallow the slide
+                }
+
+                return true;
+            }
         }
-        if (!$this->board[$common[0]] && !$this->board[$common[1]] && !$this->board[$from] && !$this->board[$to]) return false;
-        return min($this->len($this->board[$common[0]]), $this->len($this->board[$common[1]])) <= max($this->len($this->board[$from]), $this->len($this->board[$to]));
+
+        return false;
     }
 
     public function isValidPosition($position)
@@ -271,7 +291,7 @@ class Game
         return false;
     }
 
-    public function getPossiblePossitions()
+    public function getPossiblePositions()
     {
         $validPositions = [];
 
@@ -287,12 +307,51 @@ class Game
                 }
             }
         }
-        if (empty($this->getBoard())) {
+        if (!count($validPositions) && empty($this->getBoard())) {
             $validPositions[] = '0,0';
         }
 
         return array_unique($validPositions);
     }
+
+    public function getMovePositions()
+    {
+        $openPositions = [];
+
+        // Iterate over the board
+        foreach ($this->getOffsets() as $pq) {
+            foreach (array_keys($this->getBoard()) as $pos) {
+                $pq2 = explode(',', $pos);
+                $possiblePosition = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
+
+                // Check if the position is next to any tiles on the board
+                $isValid = false;
+                foreach ($this->getBoard() as $boardPos => $tiles) {
+                    foreach ($tiles as $tile) {
+                        $tilePlayer = $tile[0];
+                        if ($this->isNeighbour($boardPos, $possiblePosition)) {
+                            $isValid = true;
+                            break;
+                        }
+                    }
+                }
+
+                // If the position is valid, add it to open positions
+                if ($isValid) {
+                    $openPositions[] = $possiblePosition;
+                }
+            }
+        }
+
+        // If the board is empty, allow placing a piece at 0,0
+        if (empty($this->getBoard())) {
+            $openPositions[] = '0,0';
+        }
+
+        return array_unique($openPositions);
+    }
+
+
     public function getCurrentPlayerPositions()
     {
         $player = $this->currentPlayerIndex;
@@ -308,6 +367,7 @@ class Game
 
         return $currentPlayerPositions;
     }
+
 
     public function restart()
     {

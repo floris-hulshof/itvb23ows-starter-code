@@ -158,7 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
         </select>
         <select name="to">
             <?php
-            $possiblePositions = $game->getPossiblePossitions();
+            $possiblePositions = $game->getPossiblePositions();
             foreach ($possiblePositions as $pos) {
                 if (!$game->getBoard()[$pos]) { // Only show positions that are empty
                     echo "<option value=\"$pos\">$pos</option>";
@@ -179,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
         </select>
         <select name="to">
             <?php
-            $possiblePositions = $game->getPossiblePossitions();
+            $possiblePositions = $game->getMovePositions();
             foreach ($possiblePositions as $pos) {
                 if (!$game->getBoard()[$pos]) { // Only show positions that are empty
                     echo "<option value=\"$pos\">$pos</option>";
