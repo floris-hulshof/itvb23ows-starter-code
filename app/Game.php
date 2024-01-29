@@ -93,7 +93,6 @@ class Game
         $player = $this->currentPlayerIndex;
         $board = $this->board;
         $hand = $this->hand[$player];
-        var_dump($piece);
 
         if (!isset($hand[$piece]) || $hand[$piece] <= 0) {
             $_SESSION['error'] = "Player does not have tile";
@@ -171,13 +170,16 @@ class Game
             } else {
                 if (isset($board[$to])) array_push($board[$to], $tile);
                 else $board[$to] = [$tile];
+                unset($board[$from]); // Fixed place piece on position
                 $this->switchPlayer();
                 $_SESSION['player'] = $this->currentPlayerIndex;
                 // change this to go to DB
-                $state = $this->state->getState($this);
+                $state = $this->state->getState();
                 $lastId = $this->db->moveDB($from, $to, $_SESSION['last_move'], $state);
                 $_SESSION['last_move'] = $lastId;
             }
+
+
             $this->board = $board;
             $_SESSION['board'] = $this->board;
         }
@@ -229,37 +231,47 @@ class Game
 
     public function slide($from, $to)
     {
-        if (!$this->hasNeighBour($to)) {
-            return false;
-        }
 
-        if (!$this->isNeighbour($from, $to)) {
+        $board = $this->board;
+
+        if (!$this->hasNeighbour($to) || !$this->isNeighbour($from, $to)) {
             return false;
         }
 
         $b = explode(',', $to);
 
+        $common = [];
         foreach ($this->offsets as $pq) {
             $p = $b[0] + $pq[0];
             $q = $b[1] + $pq[1];
-            $neighbor = "$p,$q";
-
-            if (isset($this->board[$neighbor]) && $this->isNeighbour($from, $neighbor)) {
-                // Check if the tile at $neighbor is a blocker ("B")
-                if (end($this->board[$neighbor])[1] === "B") {
-                    return false; // If there's a blocker, disallow the slide
-                }
-
-                // Check if the tile at $from is a blocker ("B")
-                if (end($this->board[$from])[1] === "B") {
-                    return false; // If there's a blocker, disallow the slide
-                }
-
-                return true;
+            if ($this->isNeighbour($from, $p.",".$q)) {
+                $common[] = $p.",".$q;
             }
         }
 
-        return false;
+        if (
+            (!isset($board[$common[0]]) || !$board[$common[0]]) &&
+            (!isset($board[$common[1]]) || !$board[$common[1]]) &&
+            (!isset($board[$from]) || !$board[$from]) &&
+            (!isset($board[$to]) || !$board[$to])
+        ) {
+            return false;
+        }
+
+        $firstCommonLen = isset($board[$common[0]]) ? $board[$common[0]] : 0;
+        $firstCommonLen = $this->len($firstCommonLen);
+
+        $secondCommonLen = isset($board[$common[1]]) ? $board[$common[1]] : 0;
+        $secondCommonLen = $this->len($secondCommonLen);
+
+        $fromLen = isset($board[$from]) ? $board[$from] : 0;
+        $fromLen = $this->len($fromLen);
+
+        $toLen = isset($board[$to]) ? $board[$to] : 0;
+        $toLen = $this->len($toLen);
+
+        return min($firstCommonLen, $secondCommonLen)
+            <= max($fromLen, $toLen);
     }
 
     public function isValidPosition($position)
@@ -270,6 +282,7 @@ class Game
         if (count($this->getCurrentPlayerPositions()) < 1) {
             return true; // Allow any position on the second turn
         }
+
 
         // Check if the position is next to any of the current player's tiles
         foreach ($this->getBoard() as $pos => $tiles) {

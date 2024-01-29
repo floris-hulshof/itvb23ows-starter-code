@@ -39,6 +39,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
     $game->undo();
 
 }
+var_dump($game->getBoard());
+
 
 ?>
     <!DOCTYPE html>
