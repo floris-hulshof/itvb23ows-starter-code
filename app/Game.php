@@ -13,10 +13,10 @@ class Game
     private $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
 
-    public function __construct()
+    public function __construct($db)
     {
         session_start();
-        $this->db = new Db();
+        $this->db = $db;
 
         if (!isset($_SESSION['board'])) {
             $this->restart(); // niet heel netjes maar anders wordt dit dupecode
@@ -127,7 +127,7 @@ class Game
             $_SESSION['error'] = "board position has no neighbour";
         } elseif (array_sum($hand) < 11 && !$this->neighboursAreSameColor($to)) {  //TODO: check this if statement for the <11
             $_SESSION['error'] = "Board position has opposing neighbour";
-        } elseif (array_sum($hand) <= 8 && isset($hand['Q']) && $piece != "Q") {   //Fix voor bug 4
+        } elseif (array_sum($hand) <= 8 && $hand['Q'] > 0 && $piece != "Q") {   //Fix voor bug 4
             $_SESSION['error'] = 'Must play queen bee';
         } else {
 
@@ -163,6 +163,11 @@ class Game
             if (!$this->hasNeighBour($to))
                 $_SESSION['error'] = "Move would split hive";
             else {
+                if($tile[1] == "A"){
+                    if (!$this->antSoldierMove($from, $to)){
+                        $_SESSION['error'] = "Invalid move for ant";
+                    }
+                }
                 $all = array_keys($board);
                 $queue = [array_shift($all)];
                 while ($queue) {
@@ -208,6 +213,45 @@ class Game
             $_SESSION['board'] = $this->board;
         }
     }
+
+    public function antSoldierMove($from, $to){
+        // Check if the "from" position is the same as the "to" position
+        if ($from === $to) {
+            return false;
+        }
+
+        // Check if the "to" position is empty
+        if (isset($this->board[$to]) && !empty($this->board[$to])) {
+            return false;
+        }
+
+        // Check if the to position has a neighboring tile
+        if (!$this->hasNeighBour($to)) {
+            return false;
+        }
+
+        // Check if the "to" position is not surrounded by 5 tiles, so itws not allowed to go in the middle
+        $this->checkifMoveIsNotSurrounded($to);
+
+        return true;
+    }
+
+    public function checkifMoveIsNotSurrounded($to){
+        $surroundingTiles = 0;
+        foreach ($this->getOffsets() as $pq) {
+            $pq2 = explode(',', $to);
+            $neighborPosition = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
+
+            if (isset($this->board[$neighborPosition]) && !empty($this->board[$neighborPosition])) {
+                $surroundingTiles++;
+            }
+        }
+
+        if ($surroundingTiles >= 5) {
+            return false;
+        }
+    }
+
 
     public function pass()
     {
@@ -389,6 +433,7 @@ class Game
     }
 
 
+
     public function getCurrentPlayerPositions()
     {
         $player = $this->currentPlayerIndex;
@@ -418,6 +463,17 @@ class Game
         $_SESSION['player'] = $this->getCurrentPlayerIndex();
         $_SESSION["game_id"] = $this->game_id;
 
+    }
+    public function testRestart(){
+        $this->board = [];
+        $this->currentPlayerIndex = 0;
+        $this->game_id = 9999999;  // hardcoded testId
+        $this->hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
+        $_SESSION['OFFSET'] = $this->offsets;
+        $_SESSION['board'] = $this->board;
+        $_SESSION['hand'] = $this->hand;
+        $_SESSION['player'] = $this->getCurrentPlayerIndex();
+        $_SESSION["game_id"] = $this->game_id;
     }
 
 

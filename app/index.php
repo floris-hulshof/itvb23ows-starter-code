@@ -1,6 +1,9 @@
 <?php
 include_once 'Game.php';
-$game = new Game();
+include_once "Db.php";
+$db = new Db();
+
+$game = new Game($db);
 
 
 // Handle the play form submission
@@ -39,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
     $game->undo();
 
 }
+
+var_dump($game->getPlayerHand(1));
 
 
 ?>
