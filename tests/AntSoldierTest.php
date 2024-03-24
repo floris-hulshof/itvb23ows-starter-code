@@ -12,8 +12,6 @@ class AntSoldierTest extends TestCase{
         $db= new DatabaseMock();
         $this->game = new Game($db);
     }
-
-
     public function testAntSoldierSameMoveFromToPosition(){
         $this->game->testRestart();
 

@@ -168,6 +168,11 @@ class Game
                         $_SESSION['error'] = "Invalid move for ant";
                     }
                 }
+                if($tile[1] == "G"){
+                    if (!$this->grasshopperMove($from, $to)){
+                        $_SESSION['error'] = "Invalid move for grasshopper";
+                    }
+                }
                 $all = array_keys($board);
                 $queue = [array_shift($all)];
                 while ($queue) {
@@ -235,6 +240,63 @@ class Game
 
         return true;
     }
+
+    public function grasshopperMove($from, $to)
+    {
+
+        // Check if the "from" position is the same as the "to" position
+        if ($from === $to) {
+            return false;
+        }
+
+        // Check if the "to" position is empty and has at least one neighboring tile
+        if (isset($this->board[$to]) || !$this->hasNeighbour($to)) {
+            return false;
+        }
+        $neighbourPositions = $this->getSurroundingTiles($from);
+        // Move the grasshopper to the destination position
+        var_dump($neighbourPositions);
+        list($toX, $toY) = explode(',', $to);
+
+        // Iterate over the surrounding positions
+        foreach ($neighbourPositions as $position) {
+            // Extract the x and y coordinates of the surrounding position
+            list($posX, $posY) = explode(',', $position);
+
+            // Check if the x and y coordinates of the destination match those of any surrounding position
+            if ($toX == $posX || $toY == $posY) {
+                return true; // The destination position matches a surrounding position
+            }
+        }
+
+        return false;
+    }
+    public function getSurroundingTiles($from)
+    {
+        $surroundingTiles = [];
+
+        list($x, $y) = explode(',', $from);
+
+        // Define the offsets for the surrounding positions
+        $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
+
+        // Calculate the surrounding positions
+        foreach ($offsets as $offset) {
+            $neighbourX = $x + $offset[0];
+            $neighbourY = $y + $offset[1];
+            $neighbourPosition = "$neighbourX,$neighbourY";
+
+            // Check if there's a tile at the surrounding position
+            if (isset($this->board[$neighbourPosition]) && !empty($this->board[$neighbourPosition])) {
+                // Add the position of the surrounding tile to the list of surrounding tiles
+                $surroundingTiles[] = $neighbourPosition;
+            }
+        }
+
+        return $surroundingTiles;
+    }
+
+
 
     public function checkifMoveIsNotSurrounded($to){
         $surroundingTiles = 0;
