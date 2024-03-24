@@ -43,9 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
 
 }
 
-var_dump($game->getPlayerHand(1));
-
-
 ?>
     <!DOCTYPE html>
     <html>

@@ -8,3 +8,14 @@ services:
       - "8080:80"
     volumes:
       - ./app:/var/www/html/
+
+  ai:
+    container_name: ai
+    build:
+      context: ./ai/
+      dockerfile: Dockerfile
+    command: flask --app app run -h 0.0.0.0 --debug
+    ports:
+      - "5000:5000"
+
+

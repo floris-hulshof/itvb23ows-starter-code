@@ -1,6 +1,7 @@
 <?php
 include_once "Db.php";
 include_once "State.php";
+include_once "Ai.php";
 
 class Game
 {
@@ -11,12 +12,13 @@ class Game
     private $currentPlayerIndex;
     private $state;
     private $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
-
+    private $ai = true;
 
     public function __construct($db)
     {
         session_start();
         $this->db = $db;
+
 
         if (!isset($_SESSION['board'])) {
             $this->restart(); // niet heel netjes maar anders wordt dit dupecode
@@ -27,6 +29,9 @@ class Game
         $this->game_id = $_SESSION['game_id'];
 
         $this->state = new State;
+        if ($this->currentPlayerIndex == 0){
+            $this->aiMove();
+        }
     }
 
     public function getOffsets()
@@ -65,7 +70,7 @@ class Game
     {
         $this->state->setState($state);
         $this->board = $_SESSION['board'];
-        $this->hand =  $_SESSION['hand'];
+        $this->hand = $_SESSION['hand'];
         $this->player = $_SESSION['player'];
     }
 
@@ -163,13 +168,13 @@ class Game
             if (!$this->hasNeighBour($to))
                 $_SESSION['error'] = "Move would split hive";
             else {
-                if($tile[1] == "A"){
-                    if (!$this->antSoldierMove($from, $to)){
+                if ($tile[1] == "A") {
+                    if (!$this->antSoldierMove($from, $to)) {
                         $_SESSION['error'] = "Invalid move for ant";
                     }
                 }
-                if($tile[1] == "G"){
-                    if (!$this->grasshopperMove($from, $to)){
+                if ($tile[1] == "G") {
+                    if (!$this->grasshopperMove($from, $to)) {
                         $_SESSION['error'] = "Invalid move for grasshopper";
                     }
                 }
@@ -219,7 +224,8 @@ class Game
         }
     }
 
-    public function antSoldierMove($from, $to){
+    public function antSoldierMove($from, $to)
+    {
         // Check if the "from" position is the same as the "to" position
         if ($from === $to) {
             return false;
@@ -255,7 +261,6 @@ class Game
         }
         $neighbourPositions = $this->getSurroundingTiles($from);
         // Move the grasshopper to the destination position
-        var_dump($neighbourPositions);
         list($toX, $toY) = explode(',', $to);
 
         // Iterate over the surrounding positions
@@ -271,6 +276,7 @@ class Game
 
         return false;
     }
+
     public function getSurroundingTiles($from)
     {
         $surroundingTiles = [];
@@ -297,8 +303,8 @@ class Game
     }
 
 
-
-    public function checkifMoveIsNotSurrounded($to){
+    public function checkifMoveIsNotSurrounded($to)
+    {
         $surroundingTiles = 0;
         foreach ($this->getOffsets() as $pq) {
             $pq2 = explode(',', $to);
@@ -374,8 +380,8 @@ class Game
         foreach ($this->offsets as $pq) {
             $p = $b[0] + $pq[0];
             $q = $b[1] + $pq[1];
-            if ($this->isNeighbour($from, $p.",".$q)) {
-                $common[] = $p.",".$q;
+            if ($this->isNeighbour($from, $p . "," . $q)) {
+                $common[] = $p . "," . $q;
             }
         }
 
@@ -495,7 +501,6 @@ class Game
     }
 
 
-
     public function getCurrentPlayerPositions()
     {
         $player = $this->currentPlayerIndex;
@@ -524,9 +529,18 @@ class Game
         $_SESSION['hand'] = $this->hand;
         $_SESSION['player'] = $this->getCurrentPlayerIndex();
         $_SESSION["game_id"] = $this->game_id;
-
     }
-    public function testRestart(){
+
+    public function aiMove()
+    {
+        $aiMoveRequest = new \App\Ai();
+        $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
+
+        echo $move;
+    }
+
+    public function testRestart()
+    {
         $this->board = [];
         $this->currentPlayerIndex = 0;
         $this->game_id = 9999999;  // hardcoded testId
