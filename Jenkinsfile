@@ -14,8 +14,8 @@ pipeline {
         }
 	    stage("Test"){
 	        steps{
-	            sh "ls"
-	            sh 'app/vendor/phpunit app/tests'
+	            sh "ls app"
+	            sh 'app/vendor/bin/phpunit app/tests'
 	        }
 	    }
     }
