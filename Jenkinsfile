@@ -16,7 +16,7 @@ pipeline {
             steps {
                 dir("app") {
                     sh 'composer update'
-                    sh 'php app/vendor/bin/phpunit app/tests --configuration phpunit.xml'
+                    sh 'php app/vendor/bin/phpunit app/tests'
                 }
             }
         }
