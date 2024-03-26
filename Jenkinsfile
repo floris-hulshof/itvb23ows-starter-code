@@ -16,7 +16,7 @@ pipeline {
             steps {
                 dir("app") {
                     sh 'composer update'
-                    sh 'php app/vendor/bin/phpunit app/tests'
+                    sh 'php vendor/bin/phpunit tests'
                 }
             }
         }
