@@ -9,6 +9,8 @@ services:
       - "8080:80"
     volumes:
       - ./app:/var/www/html/
+    networks:
+      - starter-code
 
   ai:
     container_name: ai
@@ -18,5 +20,9 @@ services:
     command: flask --app app run -h 0.0.0.0 --debug
     ports:
       - "5000:5000"
+    networks:
+      - starter-code
+networks:
+  starter-code:
 
 
