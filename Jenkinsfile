@@ -14,6 +14,7 @@ pipeline {
         }
 	    stage("Test"){
 	        steps{
+	            sh "ls"
 	            sh '/var/www/html/app/vendor/phpunit /var/www/html/app/tests'
 	        }
 	    }
