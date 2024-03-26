@@ -12,9 +12,9 @@ class Game
     private $currentPlayerIndex;
     private $state;
     private $offsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
-    private $ai = true;
+    private $ai;
 
-    public function __construct($db)
+    public function __construct($db, $ai)
     {
         session_start();
         $this->db = $db;
@@ -27,9 +27,10 @@ class Game
         $this->currentPlayerIndex = $_SESSION['player'];
         $this->hand = $_SESSION['hand'];
         $this->game_id = $_SESSION['game_id'];
+        $this->ai = $ai;
 
         $this->state = new State;
-        if ($this->currentPlayerIndex == 0){
+        if ($this->currentPlayerIndex == 0 && $this->ai == true){
             $this->aiMove();
         }
     }
@@ -273,6 +274,8 @@ class Game
                 return true; // The destination position matches a surrounding position
             }
         }
+        $this->checkifMoveIsNotSurrounded($to);
+
 
         return false;
     }
@@ -318,6 +321,9 @@ class Game
         if ($surroundingTiles >= 5) {
             return false;
         }
+    }
+    public function checkWin($tile){
+
     }
 
 
@@ -517,6 +523,16 @@ class Game
         return $currentPlayerPositions;
     }
 
+    public function aiMove()
+    {
+        $aiMoveRequest = new \App\Ai();
+        $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
+
+        echo $move;
+    }
+    public function isGameWon($tile){
+
+    }
 
     public function restart()
     {
@@ -531,13 +547,6 @@ class Game
         $_SESSION["game_id"] = $this->game_id;
     }
 
-    public function aiMove()
-    {
-        $aiMoveRequest = new \App\Ai();
-        $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
-
-        echo $move;
-    }
 
     public function testRestart()
     {

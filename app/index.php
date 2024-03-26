@@ -3,7 +3,7 @@ include_once 'Game.php';
 include_once "Db.php";
 $db = new Db();
 
-$game = new Game($db);
+$game = new Game($db, false);
 
 
 // Handle the play form submission

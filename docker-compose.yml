@@ -4,6 +4,7 @@ services:
     container_name: my-php-app
     build:
       context: ./app
+      dockerfile: Dockerfile
     ports:
       - "8080:80"
     volumes:

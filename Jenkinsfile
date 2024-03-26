@@ -12,5 +12,8 @@ pipeline {
                 }
             }
         }
+	stage("Test"){
+	sh 'vendor/bin/phpunit tests/'
+	}
     }
 }

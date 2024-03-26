@@ -1,6 +1,6 @@
 <?php
-include_once "app/Game.php";
-include_once "tests/DatabaseMock.php";
+include_once "Game.php";
+include_once "DatabaseMock.php";
 
 use PHPUnit\Framework\TestCase;
 
@@ -12,7 +12,7 @@ class GrasshopperTest extends TestCase
     {
         parent::__construct($name);
         $db= new DatabaseMock();
-        $this->game = new Game($db);
+        $this->game = new Game($db, false);
     }
 
     public function testGrassHopperSameMoveFromToPosition(){
