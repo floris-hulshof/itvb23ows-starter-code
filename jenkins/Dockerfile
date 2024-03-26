@@ -5,7 +5,8 @@ RUN  jenkins-plugin-cli -f /usr/share/jenkins/ref/plugins.txt
 USER root
 RUN apt-get update \
     && apt-get install -y php-cli php-xml \
-     && apt-get install -y php-mbstring\
+    && apt-get install -y php-curl \
+    && apt-get install -y php-mbstring\
     && apt-get install -y php-mysql \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
