@@ -14,7 +14,7 @@ pipeline {
         }
 	    stage("Test"){
 	        steps{
-	            sh 'vendor/bin/phpunit tests/'
+	            sh '/var/www/html/vendor/phpunit /var/www/html/tests --configuration /var/www/html/phpunit.xml'
 	        }
 	    }
     }
