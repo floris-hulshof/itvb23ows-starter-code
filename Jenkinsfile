@@ -14,9 +14,9 @@ pipeline {
         }
         stage('Test') {
             steps {
-                dir("/app") {
+                dir("app") {
                     sh 'ls'
-            
+
                 }
             }
         }
