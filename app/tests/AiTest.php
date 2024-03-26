@@ -1,5 +1,5 @@
 <?php
-include_once "../Game.php";
+require_once __DIR__ . '/../Game.php';
 include_once "DatabaseMock.php";
 
 
