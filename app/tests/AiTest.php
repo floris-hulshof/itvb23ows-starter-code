@@ -32,6 +32,7 @@ class AiTest extends TestCase
         $predictedMove = ["play", "Q", "0,0"];
         $aiMove = $this->game->aiMove();
         var_dump($aiMove);
+        var_dump($predictedMove);
 
         $this->assertEquals($predictedMove, $aiMove);
     }

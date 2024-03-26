@@ -528,7 +528,6 @@ class Game
         $aiMoveRequest = new \App\Ai();
         $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
 
-        echo $move;
         return $move;
     }
     public function isGameWon($tile){
