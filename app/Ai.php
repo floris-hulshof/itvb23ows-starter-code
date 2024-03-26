@@ -14,7 +14,6 @@ class Ai {
             'Content-Type: application/json'
         ];
         $ch = curl_init();
-
         // Set cURL options
         curl_setopt($ch, CURLOPT_URL, $url);
         curl_setopt($ch, CURLOPT_POST, true);
@@ -24,6 +23,7 @@ class Ai {
 
         // Execute cURL session
         $response = curl_exec($ch);
+
 
         // Check for errors
         if(curl_errno($ch)) {

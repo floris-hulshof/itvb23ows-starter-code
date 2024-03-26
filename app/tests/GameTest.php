@@ -1,5 +1,5 @@
 <?php
-include_once "Game.php";
+include_once "app/Game.php";
 include_once "DatabaseMock.php";
 
 use PHPUnit\Framework\TestCase;
@@ -110,5 +110,11 @@ class GameTest extends TestCase
         sort($actualPositions);
         $this->assertEquals($expectedPositions, $actualPositions);
     }
+    public function testOffsets(){
+        $this->game->testRestart();
+        $offsets = $this->game->getOffsets();
+        $expectedoffsets = [[0, 1], [0, -1], [1, 0], [-1, 0], [-1, 1], [1, -1]];
 
+        $this->assertEquals($expectedoffsets, $offsets);
+    }
 }

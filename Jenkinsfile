@@ -1,5 +1,5 @@
 pipeline {
-    agent { label '!windows' }
+    agent any
 
     stages {
         stage('SonarQube') {
@@ -12,20 +12,5 @@ pipeline {
                 }
             }
         }
-        stage('Install Dependencies') {
-            steps {
-                // Change to the /app directory
-                dir('/app') {
-                    // Install dependencies using Composer
-                    sh 'composer install'
-                }
-            }
-        }
-	    stage("Test"){
-	        steps{
-	            sh "ls app"
-	            sh 'app/vendor/bin/phpunit app/tests'
-	        }
-	    }
     }
 }

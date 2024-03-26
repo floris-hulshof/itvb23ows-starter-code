@@ -529,6 +529,7 @@ class Game
         $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
 
         echo $move;
+        return $move;
     }
     public function isGameWon($tile){
 
@@ -560,6 +561,7 @@ class Game
         $_SESSION['player'] = $this->getCurrentPlayerIndex();
         $_SESSION["game_id"] = $this->game_id;
     }
+
 
 
 }

@@ -1,5 +1,5 @@
 <?php
-include_once "Game.php";
+include_once "app/Game.php";
 include_once "DatabaseMock.php";
 
 use PHPUnit\Framework\TestCase;
