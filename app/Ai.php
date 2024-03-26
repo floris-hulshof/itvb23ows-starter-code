@@ -36,7 +36,7 @@ class Ai {
         curl_close($ch);
 
         // Process response
-        return $response;
+        return json_decode($response);
     }
 
 }
