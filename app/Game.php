@@ -531,7 +531,7 @@ class Game
         foreach ($this->board as $position => $tiles) {
             foreach ($tiles as $tile) {
 
-                if ($tile[0] != strval($player) && $tile[1] === 'Q') {
+                if ($tile[0] !== $player && $tile[1] === 'Q') {
                     $queenPosition = $position;
                     break 2; // Break both loops
                 }
@@ -542,8 +542,8 @@ class Game
         }
         $surroundingTilesCount = 0;
         foreach ($this->getOffsets() as list($p, $q)) {
-            $neighbourPosition = ($queenPosition[0] + $p) . ',' . ($queenPosition[1] + $q);
-            if (isset($this->board[$neighbourPosition])) {
+            $neighbourPosition = ((int) $queenPosition[0] + (int) $p) . ',' . ((int) $queenPosition[1] + (int) $q);
+            if (isset($this->board[strval($neighbourPosition)])) {
                 $surroundingTilesCount++;
             }
         }
