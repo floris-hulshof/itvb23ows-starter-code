@@ -32,7 +32,7 @@ class AiTest extends TestCase
             ->getMock();
 
         $hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
-        $aiMove =$aiMock->move($this->game->getCurrentPlayerIndex(), [0 =>[$this->game->getPlayerHand(0), 1=> $this->game->getPlayerHand(1)]], $this->game->getBoard());
+        $aiMove =$aiMock->move($this->game->getCurrentPlayerIndex(), $hand, $this->game->getBoard());
 
         $predictedMove = ["play", "Q", "0,0"];
         var_dump($predictedMove);
