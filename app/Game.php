@@ -212,6 +212,7 @@ class Game
                 if (isset($board[$to])) array_push($board[$to], $tile);
                 else $board[$to] = [$tile];
                 unset($board[$from]); // Fixed place piece on position
+                $this->isGameWon($player);
                 $this->switchPlayer();
                 $_SESSION['player'] = $this->currentPlayerIndex;
                 // change this to go to DB
@@ -523,23 +524,45 @@ class Game
 
         return $currentPlayerPositions;
     }
+    public function isGameWon($player): bool
+    {
+        $queenPosition = null;
+
+        foreach ($this->board as $position => $tiles) {
+            foreach ($tiles as $tile) {
+                if ($tile[0] === $player && $tile[1] === 'Q') {
+                    $queenPosition = $position;
+                    break 2; // Break both loops
+                }
+            }
+        }
+        if ($queenPosition === null) {
+            return false;
+        }
+        $surroundingTilesCount = 0;
+        foreach ($this->getOffsets() as list($p, $q)) {
+            $neighbourPosition = ($queenPosition[0] + $p) . ',' . ($queenPosition[1] + $q);
+            if (isset($this->board[$neighbourPosition])) {
+                $surroundingTilesCount++;
+            }
+        }
+
+        return $surroundingTilesCount >= 6;
+    }
 
     public function aiMove()
     {
         $aiMoveRequest = new \App\Ai();
-        $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
+        $move = $aiMoveRequest->move($this->currentPlayerIndex, $this->hand, $this->board);
 
 
-        if($move[0] == "play"){
+        if ($move[0] == "play") {
             $this->play($move[1], $move[2]);
         }
-        if($move[0] == "play"){
+        if ($move[0] == "play") {
             $this->move($move[1], $move[2]);
         }
         return $move;
-    }
-    public function isGameWon($tile){
-
     }
 
     public function restart()

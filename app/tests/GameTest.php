@@ -117,4 +117,18 @@ class GameTest extends TestCase
 
         $this->assertEquals($expectedoffsets, $offsets);
     }
+    public function testGameWon(){
+        $this->game->testRestart();
+        $this->game->setBoard('0,0', 'Q');
+        $this->game->switchPlayer();
+        $this->game->setBoard('0,1', 'A');
+        $this->game->setBoard('-1,1', 'A');
+        $this->game->setBoard('-1,0', 'A');
+        $this->game->setBoard('0,-1', 'A');
+        $this->game->setBoard('1,-1', 'A');
+        $this->game->setBoard('1,0', 'A');
+
+        $this->assertTrue($this->game->isGameWon($this->game->getCurrentPlayerIndex()));
+
+    }
 }

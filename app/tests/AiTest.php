@@ -16,19 +16,14 @@ class AiTest extends TestCase
     }
     public function testAiFirstMove(){
         $this->game->testRestart();
-
-        var_dump($this->game->getCurrentPlayerIndex());
-        var_dump($this->game->getBoard());
         $aiMove = $this->game->aiMove();
         $predictedMove = ["play", "Q", "0,0"];
-
 
         $this->assertEquals($predictedMove, $aiMove);
     }
 
     public function testAiIsFirstMove(){
         $this->game->testRestart();
-
         //when game restarts ai will immediately play and switch to player 2
         $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
             ->getMock();
@@ -39,8 +34,8 @@ class AiTest extends TestCase
     }
 
 
-//    public function testAiFirstRoundIsAlwaysPlayMove(){
-//
-//    }
+    public function testAiFirstRoundIsAlwaysPlayMove(){
+
+    }
 
 }
