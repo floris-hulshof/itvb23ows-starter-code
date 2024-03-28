@@ -15,6 +15,7 @@ class AiTest extends TestCase
         $this->game = new Game($db, false);
     }
     public function testAiFirstMove(){
+        $this->game->testRestart();
 
         var_dump($this->game->getCurrentPlayerIndex());
         var_dump($this->game->getBoard());
@@ -26,6 +27,7 @@ class AiTest extends TestCase
     }
 
     public function testAiIsFirstMove(){
+        $this->game->testRestart();
 
         //when game restarts ai will immediately play and switch to player 2
         $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
