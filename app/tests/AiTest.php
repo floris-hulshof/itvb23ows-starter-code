@@ -34,8 +34,6 @@ class AiTest extends TestCase
     }
 
 
-    public function testAiFirstRoundIsAlwaysPlayMove(){
 
-    }
 
 }
