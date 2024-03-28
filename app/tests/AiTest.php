@@ -13,10 +13,19 @@ class AiTest extends TestCase
     {
         parent::__construct($name);
         $db= new DatabaseMock();
-        $this->game = new Game($db, false);
+        $this->game = new Game($db, true);
     }
 
 
+    public function testAiIsFirstMove(){
+        $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
+            ->getMock();
+        //when game restarts ai will immediately play and switch to player 2
+        $this->game->testRestart();
+        $currentPlayer = $this->game->getCurrentPlayerIndex();
+        $expectedPlayer = 1;
+        $this->assertEquals($expectedPlayer, $currentPlayer);
+    }
 
     public function testAiFirstMove(){
         $board = [];

@@ -33,6 +33,7 @@ class Game
         if ($this->currentPlayerIndex == 0 && $this->ai == true){
             $this->aiMove();
         }
+        var_dump($this->board);
     }
 
     public function getOffsets()
@@ -528,6 +529,13 @@ class Game
         $aiMoveRequest = new \App\Ai();
         $move = $aiMoveRequest->move($this->currentPlayerIndex,$this->hand, $this->board);
 
+
+        if($move[0] == "play"){
+            $this->play($move[1], $move[2]);
+        }
+        if($move[0] == "play"){
+            $this->move($move[1], $move[2]);
+        }
         return $move;
     }
     public function isGameWon($tile){
