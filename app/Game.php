@@ -530,7 +530,7 @@ class Game
 
         foreach ($this->board as $position => $tiles) {
             foreach ($tiles as $tile) {
-                if ($tile[0] != $player && $tile[1] === 'Q') {
+                if ((int) $tile[0] != $player && $tile[1] === 'Q') {
                     $queenPosition = $position;
                     break 2; // Break both loops
                 }
