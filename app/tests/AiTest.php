@@ -28,15 +28,16 @@ class AiTest extends TestCase
 
     public function testAiFirstMove(){
 
-        $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
-            ->getMock();
-
-        $aiMove =$aiMock->move($this->game->getCurrentPlayerIndex(), [$this->game->getPlayerHand(0), $this->game->getPlayerHand(1)], $this->game->getBoard());
+        var_dump($this->game->getCurrentPlayerIndex());
+        var_dump($this->game->getBoard());
         $aiMove = $this->game->aiMove();
         $predictedMove = ["play", "Q", "0,0"];
 
 
         $this->assertEquals($predictedMove, $aiMove);
     }
+//    public function testAiFirstRoundIsAlwaysPlayMove(){
+//
+//    }
 
 }
