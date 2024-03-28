@@ -18,8 +18,8 @@ class AiTest extends TestCase
 
 
     public function testAiIsFirstMove(){
-        $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
-            ->getMock();
+//        $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
+//            ->getMock();
         //when game restarts ai will immediately play and switch to player 2
         $this->game->testRestart();
         $currentPlayer = $this->game->getCurrentPlayerIndex();
@@ -40,8 +40,6 @@ class AiTest extends TestCase
 
         $predictedMove = ["play", "Q", "0,0"];
         $aiMove = $this->game->aiMove();
-        var_dump($aiMove);
-        var_dump($predictedMove);
 
         $this->assertEquals($predictedMove, $aiMove);
     }
