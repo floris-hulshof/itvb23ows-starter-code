@@ -34,6 +34,8 @@ class AiTest extends TestCase
         $aiMove =$aiMock->move($this->game->getCurrentPlayerIndex(), [$this->game->getPlayerHand(0), $this->game->getPlayerHand(1)], $this->game->getBoard());
 
         $predictedMove = ["play", "Q", "0,0"];
+        var_dump($predictedMove);
+        var_dump($aiMove);
 
         $this->assertEquals($predictedMove, $aiMove);
     }
