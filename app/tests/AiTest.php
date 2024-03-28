@@ -23,6 +23,7 @@ class AiTest extends TestCase
         //when game restarts ai will immediately play and switch to player 2
         $this->game->testRestart();
         $currentPlayer = $this->game->getCurrentPlayerIndex();
+        var_dump($currentPlayer);
         $expectedPlayer = 1;
         $this->assertEquals($expectedPlayer, $currentPlayer);
     }
@@ -33,6 +34,7 @@ class AiTest extends TestCase
         $game_id = 9999999;  // hardcoded testId
         $hand = [0 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3], 1 => ["Q" => 1, "B" => 2, "S" => 2, "A" => 3, "G" => 3]];
         //Because game->restart starts with a aiMove() it is not possible to get the move from restart only on the board
+//        $this->game->testRestart();
         $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
             ->getMock();
 
