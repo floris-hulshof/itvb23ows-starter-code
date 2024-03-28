@@ -14,6 +14,16 @@ class AiTest extends TestCase
         $db = new DatabaseMock();
         $this->game = new Game($db, false);
     }
+    public function testAiFirstMove(){
+
+        var_dump($this->game->getCurrentPlayerIndex());
+        var_dump($this->game->getBoard());
+        $aiMove = $this->game->aiMove();
+        $predictedMove = ["play", "Q", "0,0"];
+
+
+        $this->assertEquals($predictedMove, $aiMove);
+    }
 
     public function testAiIsFirstMove(){
 
@@ -26,16 +36,7 @@ class AiTest extends TestCase
         $this->assertEquals($expectedPlayer, $currentPlayer);
     }
 
-    public function testAiFirstMove(){
 
-        var_dump($this->game->getCurrentPlayerIndex());
-        var_dump($this->game->getBoard());
-        $aiMove = $this->game->aiMove();
-        $predictedMove = ["play", "Q", "0,0"];
-
-
-        $this->assertEquals($predictedMove, $aiMove);
-    }
 //    public function testAiFirstRoundIsAlwaysPlayMove(){
 //
 //    }
