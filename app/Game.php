@@ -212,8 +212,12 @@ class Game
                 if (isset($board[$to])) array_push($board[$to], $tile);
                 else $board[$to] = [$tile];
                 unset($board[$from]); // Fixed place piece on position
-                $this->isGameWon($player);
+                $firstWinner = $this->isGameWon($player);
                 $this->switchPlayer();
+                $secondWinner = $this->isGameWon($player);
+                $this->isGameDraw($firstWinner, $secondWinner);
+
+
                 $_SESSION['player'] = $this->currentPlayerIndex;
                 // change this to go to DB
                 $state = $this->state->getState();
@@ -549,6 +553,14 @@ class Game
         }
 
         return $surroundingTilesCount >= 6;
+    }
+
+    public function isGameDraw($player1, $player2){
+        if($player1 && $player2){
+            echo "Both player Won!";
+            return true;
+        }
+        return false;
     }
 
     public function aiMove()

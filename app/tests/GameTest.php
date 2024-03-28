@@ -131,4 +131,25 @@ class GameTest extends TestCase
         $this->assertTrue($this->game->isGameWon($this->game->getCurrentPlayerIndex()));
 
     }
+    public function testIsGameDraw(){
+        $this->game->restart();
+        $this->game->testRestart();
+        $this->game->setBoard('0,0', 'Q');
+        $this->game->switchPlayer();
+        $this->game->setBoard('0,1', 'Q');
+        $this->game->setBoard('-1,1', 'A');
+        $this->game->setBoard('-1,0', 'A');
+        $this->game->setBoard('0,-1', 'A');
+        $this->game->setBoard('1,-1', 'A');
+        $this->game->setBoard('1,0', 'A');
+        $this->game->setBoard('1,1', 'A');
+        $this->game->setBoard('0,2', 'A');
+        $this->game->setBoard('-1,2', 'A');
+
+        $player1 = $this->game->isGameWon($this->game->getCurrentPlayerIndex());
+        $this->game->switchPlayer();
+        $player2 = $this->game->isGameWon($this->game->getCurrentPlayerIndex());
+
+        $this->assertTrue($this->game->isGameDraw($player1, $player2));
+    }
 }
