@@ -30,9 +30,7 @@ class Game
         $this->ai = $ai;
 
         $this->state = new State;
-        if ($this->currentPlayerIndex == 0 && $this->ai == true){
-            $this->aiMove();
-        }
+
     }
 
     public function getOffsets()
@@ -232,22 +230,18 @@ class Game
 
     public function antSoldierMove($from, $to)
     {
-        // Check if the "from" position is the same as the "to" position
         if ($from === $to) {
             return false;
         }
 
-        // Check if the "to" position is empty
         if (isset($this->board[$to]) && !empty($this->board[$to])) {
             return false;
         }
 
-        // Check if the to position has a neighboring tile
         if (!$this->hasNeighBour($to)) {
             return false;
         }
 
-        // Check if the "to" position is not surrounded by 5 tiles, so itws not allowed to go in the middle
         $this->checkifMoveIsNotSurrounded($to);
 
         return true;
@@ -255,33 +249,24 @@ class Game
 
     public function grasshopperMove($from, $to)
     {
-
-        // Check if the "from" position is the same as the "to" position
         if ($from === $to) {
             return false;
         }
 
-        // Check if the "to" position is empty and has at least one neighboring tile
         if (isset($this->board[$to]) || !$this->hasNeighbour($to)) {
             return false;
         }
         $neighbourPositions = $this->getSurroundingTiles($from);
-        // Move the grasshopper to the destination position
         list($toX, $toY) = explode(',', $to);
 
-        // Iterate over the surrounding positions
         foreach ($neighbourPositions as $position) {
-            // Extract the x and y coordinates of the surrounding position
-            list($posX, $posY) = explode(',', $position);
 
-            // Check if the x and y coordinates of the destination match those of any surrounding position
+            list($posX, $posY) = explode(',', $position);
             if ($toX == $posX || $toY == $posY) {
-                return true; // The destination position matches a surrounding position
+                return true;
             }
         }
         $this->checkifMoveIsNotSurrounded($to);
-
-
         return false;
     }
 
@@ -478,13 +463,11 @@ class Game
     {
         $openPositions = [];
 
-        // Iterate over the board
         foreach ($this->getOffsets() as $pq) {
             foreach (array_keys($this->getBoard()) as $pos) {
                 $pq2 = explode(',', $pos);
                 $possiblePosition = ($pq[0] + $pq2[0]) . ',' . ($pq[1] + $pq2[1]);
 
-                // Check if the position is next to any tiles on the board
                 $isValid = false;
                 foreach ($this->getBoard() as $boardPos => $tiles) {
                     foreach ($tiles as $tile) {
@@ -495,15 +478,11 @@ class Game
                         }
                     }
                 }
-
-                // If the position is valid, add it to open positions
                 if ($isValid) {
                     $openPositions[] = $possiblePosition;
                 }
             }
         }
-
-        // If the board is empty, allow placing a piece at 0,0
         if (empty($this->getBoard())) {
             $openPositions[] = '0,0';
         }
