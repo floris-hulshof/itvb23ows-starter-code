@@ -145,7 +145,6 @@ class GameTest extends TestCase
         $this->game->setBoard('1,1', 'A');
         $this->game->setBoard('0,2', 'A');
         $this->game->setBoard('-1,2', 'A');
-
         $player1 = $this->game->isGameWon($this->game->getCurrentPlayerIndex());
         $this->game->switchPlayer();
         $player2 = $this->game->isGameWon($this->game->getCurrentPlayerIndex());

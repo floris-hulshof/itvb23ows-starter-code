@@ -7,7 +7,7 @@ class Db
     public function __construct()
     {
         $this->state = new State();
-        $host = "mysql-container";
+        $host = "mysql_container";
         $username = "root";
         $password = "root";
         $database = "hive";

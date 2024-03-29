@@ -33,7 +33,6 @@ class Game
         if ($this->currentPlayerIndex == 0 && $this->ai == true){
             $this->aiMove();
         }
-        var_dump($this->board);
     }
 
     public function getOffsets()

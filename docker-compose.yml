@@ -6,12 +6,69 @@ services:
       context: ./app
       dockerfile: Dockerfile
     ports:
-      - "8080:80"
+      - "8000:80"
     volumes:
       - ./app:/var/www/html/
     networks:
       - starter-code
 
+#  mysql-container:
+#    container_name: mysql-container
+#    image: mysql:5.7
+#    environment:
+#      MYSQL_DATABASE: hive
+#      MYSQL_ROOT_PASSWORD: root
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - ./database/hive.sql:/docker-entrypoint-initdb.d/hive.sql
+#    restart: always
+#    networks:
+#      - starter-code
+
+  app-db:
+    container_name: mysql-container
+    build: ./database/
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_DATABASE: hive
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+
+  jenkins:
+    container_name: jenkins
+    build:
+      context: jenkins
+      dockerfile: Dockerfile
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - app:/var/www/html
+    restart: always
+    depends_on:
+      - sonar
+    environment:
+      SONARQUBE_PORT: 9000
+    ports:
+      - '8080:8080'
+    networks:
+      - starter-code
+#
+  sonar:
+    container_name: sonarqube
+    image: sonarqube:latest
+    restart: always
+    volumes:
+      - sonarqube-data:/opt/sonar-mf-cube/data
+    environment:
+      - SONAR_ES_BOOTSTRAP_CHECKS_DISABLE=true
+    ports:
+      - '9000:9000'
+    networks:
+      - starter-code
   ai:
     container_name: ai
     build:
@@ -22,6 +79,12 @@ services:
       - "5000:5000"
     networks:
       - starter-code
+
+volumes:
+  app:
+  jenkins-data:
+  sonarqube-data:
+
 networks:
   starter-code:
 
