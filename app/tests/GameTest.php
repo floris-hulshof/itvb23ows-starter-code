@@ -14,7 +14,7 @@ class GameTest extends TestCase
         $this->game = new Game($db, false);
     }
 
-    //To check if this move is not in the center of surrounding peaces
+
     public function testMoveToIsNotSurrounded(){
         $this->game->testRestart();
 

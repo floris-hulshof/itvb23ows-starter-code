@@ -2,8 +2,9 @@
 include_once 'Game.php';
 include_once "Db.php";
 $db = new Db();
+$ai = false;
 
-$game = new Game($db, true);
+$game = new Game($db, $ai);
 
 
 // Handle the play form submission
@@ -42,10 +43,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['undo'])) {
     $game->undo();
 
 }
+if ($game->getCurrentPlayerIndex() == 0 && $ai){
+    $game->aiMove();
+}
 
 ?>
     <!DOCTYPE html>
-    <html>
+    <html lang="nl">
     <head>
         <title>Hive</title>
         <style>
