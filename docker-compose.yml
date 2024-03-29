@@ -12,20 +12,6 @@ services:
     networks:
       - starter-code
 
-#  mysql-container:
-#    container_name: mysql-container
-#    image: mysql:5.7
-#    environment:
-#      MYSQL_DATABASE: hive
-#      MYSQL_ROOT_PASSWORD: root
-#    ports:
-#      - "3306:3306"
-#    volumes:
-#      - ./database/hive.sql:/docker-entrypoint-initdb.d/hive.sql
-#    restart: always
-#    networks:
-#      - starter-code
-
   app-db:
     container_name: mysql-container
     build: ./database/

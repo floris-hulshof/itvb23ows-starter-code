@@ -556,7 +556,6 @@ class Game
 
     public function isGameDraw($player1, $player2){
         if($player1 && $player2){
-            echo "Both player Won!";
             return true;
         }
         return false;
