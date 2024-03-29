@@ -38,6 +38,9 @@ services:
       - '3306:3306'
     expose:
       - '3306'
+    networks:
+      - starter-code
+
 
   jenkins:
     container_name: jenkins
