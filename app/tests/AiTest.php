@@ -25,8 +25,6 @@ class AiTest extends TestCase
     public function testAiIsFirstMove(){
         $this->game->testRestart();
         //when game restarts ai will immediately play and switch to player 2
-        $aiMock = $this->getMockBuilder(\App\Ai::class)->disableOriginalConstructor()
-            ->getMock();
         $this->game->aiMove();
         $currentPlayer = $this->game->getCurrentPlayerIndex();
         $expectedPlayer = 1;
